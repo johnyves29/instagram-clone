@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import Post from "./Post";
+import ImageUpload from "./ImageUpload";
 import { auth, db } from "./firebase";
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import { Button, Input } from "@material-ui/core";
+import Container from "@material-ui/core/Container";
 
 function getModalStyle() {
   //modal in center
@@ -22,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
   //modal styles
   paper: {
     position: "absolute",
-    width: 400,
+    width: 300,
     backgroundColor: theme.palette.background.paper,
     border: "2px solid #000",
     boxShadow: theme.shadows[5],
@@ -70,15 +72,17 @@ function App() {
 
   // useEffect runs piece of code base on specific condition
   useEffect(() => {
-    db.collection("posts").onSnapshot((snapshot) => {
-      //everytime post is added, this codes fires..
-      setPosts(
-        snapshot.docs.map((doc) => ({
-          id: doc.id,
-          post: doc.data(),
-        }))
-      );
-    });
+    db.collection("posts")
+      .orderBy("created", "desc")
+      .onSnapshot((snapshot) => {
+        //everytime post is added, this codes fires..
+        setPosts(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            post: doc.data(),
+          }))
+        );
+      });
   }, []);
 
   const signUp = (event) => {
@@ -94,6 +98,8 @@ function App() {
       .catch((error) => alert(error.message));
 
     setOpen(false);
+    alert("Successfully Registered!");
+    window.location.reload();
   };
 
   const signIn = (event) => {
@@ -113,8 +119,8 @@ function App() {
           <center>
             <form className="app__signup">
               <img
-                className="app__headerImage"
-                src="https://assets.website-files.com/5c75b94c8dd1ae50d3b9294b/5d48831280adb734a5db5620_hukglfkfklk%3B.png"
+                className="app__headImage"
+                src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
                 alt=""
               />
               <Input
@@ -146,8 +152,8 @@ function App() {
           <center>
             <form className="app__signup">
               <img
-                className="app__headerImage"
-                src="https://assets.website-files.com/5c75b94c8dd1ae50d3b9294b/5d48831280adb734a5db5620_hukglfkfklk%3B.png"
+                className="app__headImage"
+                src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
                 alt=""
               />
               <Input
@@ -167,33 +173,51 @@ function App() {
           </center>
         </div>
       </Modal>
-
-      <div className="app__header">
-        <img
-          className="app__headerImage"
-          src="https://assets.website-files.com/5c75b94c8dd1ae50d3b9294b/5d48831280adb734a5db5620_hukglfkfklk%3B.png"
-          alt=""
-        />
+      <div className="app__nav">
+        <Container maxWidth="sm">
+          <div className="app__header">
+            <img
+              className="app__headerImage"
+              src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png
+          "
+              alt=""
+            />
+            {user ? (
+              <Button onClick={() => auth.signOut()}>Logout</Button>
+            ) : (
+              <div className="app__loginContainer">
+                <Button onClick={() => setOpenSignIn(true)}>Login</Button>
+                <Button onClick={() => setOpen(true)}>Sign Up</Button>
+              </div>
+            )}
+          </div>
+        </Container>
       </div>
-      {user ? (
-        <Button onClick={() => auth.signOut()}>Logout</Button>
-      ) : (
-        <div className="app__loginContainer">
-          <Button onClick={() => setOpenSignIn(true)}>Login</Button>
-          <Button onClick={() => setOpen(true)}>Sign Up</Button>
+
+      <Container maxWidth="sm">
+        <div className="app__upload">
+          {user?.displayName ? (
+            <ImageUpload username={user.displayName} />
+          ) : (
+            <h3 className="app__uploadMessage">
+              Sorry you need to login to upload
+            </h3>
+          )}
         </div>
-      )}
 
-      <h1>test Emmet!</h1>
-
-      {posts.map(({ id, post }) => (
-        <Post
-          key={id}
-          username={post.username}
-          caption={post.caption}
-          imageUrl={post.imageUrl}
-        />
-      ))}
+        <div className="app__posts">
+          {posts.map(({ id, post }) => (
+            <Post
+              key={id}
+              postId={id}
+              user={user}
+              username={post.username}
+              caption={post.caption}
+              imageUrl={post.imageUrl}
+            />
+          ))}
+        </div>
+      </Container>
     </div>
   );
 }

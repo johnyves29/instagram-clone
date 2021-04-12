@@ -2,24 +2,53 @@
   margin: 0;
 }
 
+body {
+  background-color: #fafafa;
+  font-size: 14px;
+}
+
 .app {
   background-color: #fafafa;
   height: 100vh;
 }
 
-.app__header {
+.app__posts {
+  padding: 20px 0;
+}
+
+.app__nav {
   background-color: white;
-  padding: 10px;
   border-bottom: 1px solid lightgray;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.app__header { 
+  padding: 10px 0;
+  display: flex;
+  justify-content: space-between;
 }
 
 .app__headerImage {
-  width: 120px;
   object-fit: contain;
- 
+}
+
+.app__headImage {
+  object-fit: contain;
+  margin: 10px auto;
 }
 
 .app__signup {
   display: flex;
   flex-direction: column;
+}
+
+.app__upload {
+  margin-top: 25px;
+}
+
+.app__uploadMessage {
+  padding: 0 3rem;
+  text-align: center;
 }
